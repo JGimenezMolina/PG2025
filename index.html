@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BARRA GANSA 2025 - SOM I SEREM</title>
   <script defer>
     let tipoConsumo = "";
+    let puedeLeer = true;  // Control para evitar lecturas repetidas
 
     async function leerChipNFC(tipo) {
       tipoConsumo = tipo;
+
+      if (!puedeLeer) {
+        alert("Por favor, espera unos segundos antes de leer otro chip.");
+        return;
+      }
 
       if ('NDEFReader' in window) {
         const ndef = new NDEFReader();
@@ -17,9 +23,20 @@
           log(`Escaneando (${tipo})... toca un chip NFC`);
 
           ndef.onreading = event => {
+            if (!puedeLeer) return;  // Bloqueo si ya leímos uno
+
             const uid = event.serialNumber;
             log(`UID leído: ${uid}`);
+            puedeLeer = false;  // Bloqueamos nuevas lecturas
             consultarUsuario(uid, tipo);
+
+            // Después de 5 segundos desbloqueamos y mostramos alerta
+            setTimeout(() => {
+              puedeLeer = true;
+              alert("Ya puedes volver a leer otro chip NFC.");
+              log("Esperando nueva lectura...");
+              mostrarIcono(""); // Limpiamos icono
+            }, 5000);
           };
         } catch (error) {
           log("Error al escanear NFC: " + error);
@@ -42,7 +59,10 @@
         output.className = "grande";
       } else if (tipo === "error") {
         output.innerHTML = "❌";
-        output.className = "grande";
+        output.className = "grande error";
+      } else {
+        output.innerHTML = "";
+        output.className = "";
       }
     }
 
@@ -54,7 +74,7 @@
 
         if (datos.ok) {
           const saldo = tipo === 'mayor' ? datos.mayor : datos.menor;
-          if (saldo > 0) {
+          if (saldo >= 0) {
             mostrarIcono("ok");
             log(`Nombre: ${datos.nombre}\nSaldo +18: ${datos.mayor}\nSaldo menor: ${datos.menor}`);
           } else {
