@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector NFC Festival</title>
+  <script defer>
+    async function leerChipNFC() {
+      if ('NDEFReader' in window) {
+        const ndef = new NDEFReader();
+        try {
+          await ndef.scan();
+          log("Escaneando... toca un chip NFC");
+
+          ndef.onreading = event => {
+            const uid = event.serialNumber;
+            log(`UID leído: ${uid}`);
+            consultarUsuario(uid);
+          };
+        } catch (error) {
+          log("Error al escanear NFC: " + error);
+        }
+      } else {
+        log("NFC no soportado en este dispositivo o navegador.");
+      }
+    }
+
+    function log(texto) {
+      document.getElementById("output").textContent = texto;
+    }
+
+    async function consultarUsuario(uid) {
+      const url = `https://script.google.com/macros/s/AKfycbytAKOhvDG5qRdGXUon8I6Pfk8C5KUE5RiDmQIUC75IhPmil_VMn8IcTOh3mRZzCNFLQQ/exec?uid=${uid}`;
+      try {
+        const respuesta = await fetch(url);
+        const datos = await respuesta.json();
+
+        if (datos.ok) {
+          log(`Nombre: ${datos.nombre}\nSaldo: ${datos.saldo}`);
+        } else {
+          log("Usuario no encontrado");
+        }
+      } catch (error) {
+        log("Error al consultar usuario: " + error);
+      }
+    }
+  </script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 2em; }
+    button { padding: 1em; font-size: 1.2em; border-radius: 8px; }
+    #output { margin-top: 2em; font-size: 1.2em; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h1>Lector NFC - Festival</h1>
+  <button onclick="leerChipNFC()">Leer Chip NFC</button>
+  <div id="output"></div>
+</body>
+</html>
