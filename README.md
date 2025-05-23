@@ -6,16 +6,13 @@
   <title>Lector NFC Festival</title>
   <script defer>
     let tipoConsumo = "";
-
     async function leerChipNFC(tipo) {
       tipoConsumo = tipo;
-
       if ('NDEFReader' in window) {
         const ndef = new NDEFReader();
         try {
           await ndef.scan();
           log(`Escaneando (${tipo})... toca un chip NFC`);
-
           ndef.onreading = event => {
             const uid = event.serialNumber;
             log(`UID leído: ${uid}`);
@@ -28,17 +25,14 @@
         log("NFC no soportado en este dispositivo o navegador.");
       }
     }
-
     function log(texto) {
       document.getElementById("output").textContent = texto;
     }
-
     async function consultarUsuario(uid, tipo) {
       const url = `https://script.google.com/macros/s/AKfycbyJm3pM9GX0cJe4FDVdQth96ZWI36jGFxco1v7fxDkbD-ZH3cv1BYcs6H32wz_mE-LrHw/exec?uid=${uid}&tipo=${tipo}`;
       try {
         const respuesta = await fetch(url);
         const datos = await respuesta.json();
-
         if (datos.ok) {
           log(`Nombre: ${datos.nombre}\nSaldo +18: ${datos.mayor}\nSaldo menor: ${datos.menor}`);
         } else {
