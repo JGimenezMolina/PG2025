@@ -30,21 +30,43 @@
     }
 
     function log(texto) {
-      document.getElementById("output").textContent = texto;
+      const output = document.getElementById("output");
+      output.textContent = texto;
+      output.className = "";
+    }
+
+    function mostrarIcono(tipo) {
+      const output = document.getElementById("output");
+      if (tipo === "ok") {
+        output.innerHTML = "✅";
+        output.className = "grande";
+      } else if (tipo === "error") {
+        output.innerHTML = "❌";
+        output.className = "grande";
+      }
     }
 
     async function consultarUsuario(uid, tipo) {
-      const url = `https://script.google.com/macros/s/AKfycbyJm3pM9GX0cJe4FDVdQth96ZWI36jGFxco1v7fxDkbD-ZH3cv1BYcs6H32wz_mE-LrHw/exec?uid=${uid}&tipo=${tipo}`;
+      const url = `https://script.google.com/macros/s/AKfycbytAKOhvDG5qRdGXUon8I6Pfk8C5KUE5RiDmQIUC75IhPmil_VMn8IcTOh3mRZzCNFLQQ/exec?uid=${uid}&tipo=${tipo}`;
       try {
         const respuesta = await fetch(url);
         const datos = await respuesta.json();
 
         if (datos.ok) {
-          log(`Nombre: ${datos.nombre}\nSaldo +18: ${datos.mayor}\nSaldo menor: ${datos.menor}`);
+          const saldo = tipo === 'mayor' ? datos.mayor : datos.menor;
+          if (saldo > 0) {
+            mostrarIcono("ok");
+            log(`Nombre: ${datos.nombre}\nSaldo +18: ${datos.mayor}\nSaldo menor: ${datos.menor}`);
+          } else {
+            mostrarIcono("error");
+            log(`Saldo insuficiente\nNombre: ${datos.nombre}\nSaldo +18: ${datos.mayor}\nSaldo menor: ${datos.menor}`);
+          }
         } else {
+          mostrarIcono("error");
           log("Usuario no encontrado");
         }
       } catch (error) {
+        mostrarIcono("error");
         log("Error al consultar usuario: " + error);
       }
     }
@@ -52,7 +74,9 @@
   <style>
     body { font-family: sans-serif; text-align: center; padding: 2em; }
     button { padding: 1em; font-size: 1.2em; margin: 0.5em; border-radius: 8px; }
-    #output { margin-top: 2em; font-size: 1.2em; white-space: pre-line; }
+    #output { margin-top: 2em; font-size: 1.2em; white-space: pre-line; transition: all 0.3s ease; }
+    .grande { font-size: 3em; color: green; }
+    .grande.error { color: red; }
   </style>
 </head>
 <body>
