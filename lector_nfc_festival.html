@@ -34,7 +34,7 @@
     }
 
     async function consultarUsuario(uid, tipo) {
-      const url = `https://script.google.com/macros/s/AKfycbytAKOhvDG5qRdGXUon8I6Pfk8C5KUE5RiDmQIUC75IhPmil_VMn8IcTOh3mRZzCNFLQQ/exec?uid=${uid}&tipo=${tipo}`;
+      const url = `https://script.google.com/macros/s/AKfycbyJm3pM9GX0cJe4FDVdQth96ZWI36jGFxco1v7fxDkbD-ZH3cv1BYcs6H32wz_mE-LrHw/exec?uid=${uid}&tipo=${tipo}`;
       try {
         const respuesta = await fetch(url);
         const datos = await respuesta.json();
